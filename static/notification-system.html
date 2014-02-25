@@ -1,0 +1,181 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Your Alarming System</title>
+		<script src="jquery-2.1.0.min.js"></script>
+		<script>
+		function activatePolling() {
+			poller = window.setInterval(function () { pollNotifications(); }, 10000);
+			$('#togglePollerButton').prop('value', 'Stop polling');
+			console.log("Polling activated");
+		}
+
+		function deactivatePolling() {
+			window.clearInterval(poller);
+			poller = 0;
+			$('#togglePollerButton').prop('value', 'Poll notifications');
+			console.log("Polling deactivated");
+		}
+
+		function checkNotificationsSupport() {
+			if ("Notification" in window) {
+				return true;
+			}
+			else {
+				console.log("Notifications are not supported for this Browser/OS version yet.");
+				return false;
+			}
+		}
+
+		function requestNotificationsGrant() {
+			if (!checkNotificationsSupport()) {
+				return false;
+			}
+
+			if (Notification.permission === "granted") {
+				return true;
+			}
+			else if (Notification.permission !== "denied") {
+					return requestNotificationsPermissions();
+			}
+		} 
+
+		function postNotification(text, id, requester) {
+			if (!requestNotificationsGrant()) {
+				console.log("Can't push notifications. Aborting");
+				return false;
+			}
+
+			tag = id;
+			var notification = new Notification(text + " (from " + requester + ")", { body: "Click to acknowledge the notification", tag: tag });
+			notifications_list[notification.tag] = notification;
+			$('#n_status').append("<tr><td>" + tag + "</td><td>" + text + "</td><td id='status_" + tag + "'>SENT</td></tr>");
+
+			notification.onclick = function () {
+				//if (JSON.parse(acknowledge(notification.tag)) {
+				acknowledge(notification.tag);
+				notifications_list[notification.tag].ack = true;
+				console.log("Notification " + notification.tag + " was acknowledged");
+				$('#status_' + notification.tag).html('ACKNOWLEDGED');
+				//}
+			};
+			notification.onclose = function () {
+				if (!notifications_list[notification.tag].ack) {
+					console.log("Notification " + notification.tag + " was rejected");
+					$('#status_' + notification.tag).html('REJECTED');
+				}
+			};
+			notification.onerror = function () {
+				console.log("Notification " + notification.tag + " was not displayed");
+				$('#status_' + notification.tag).html('ERROR');
+			};
+			notification.onshow = function () {
+				console.log("Notification " + notification.tag + " was displayed");
+				$('#status_' + notification.tag).html('DISPLAYED');
+			};
+		}
+
+		function requestNotificationsPermissions() {
+			Notification.requestPermission(function (permission) {
+				// Whatever the user answers, we make sure Chrome stores the information
+				if(!('permission' in Notification)) {
+					Notification.permission = permission;
+				}
+				console.log("Permissions are now: " + permission);
+				return Notification.permission === "granted";
+			});
+		}
+
+		function togglePoller() {
+			if (poller) { //FIXME
+				deactivatePolling();
+			} else {
+				activatePolling();
+			}
+		}
+
+		function pollNotifications() {
+			console.log("Polling notifications");
+
+			$.ajax({ type: "GET", url: "http://localhost:5000/v0.1/getAvailableNotifications" })
+			.done( function(data) {
+				notifications = JSON.parse(data)
+				//html = "<table><tr><th>id</th><th>status</th><th>requester</th><th>receiver</th><th>created</th><th>expires</th><th>message</th><th>acknowledge</th></tr>"
+				$.each(notifications, function(index, notification) {
+					if (notification['id'] in notifications_list) {
+						console.log("Notification " + notification['id'] + " already posted.");
+					}
+					else {
+						postNotification(notification['message'], notification['id'], notification['requester']);
+					}
+				//	html += "<tr><td>" + notification['id'] + "</td><td>" + notification['status'] + "</td><td>" + notification['requester'] + "</td><td>" + notification['receiver'] + "</td><td>" + notification['created'] + "</td><td>" + notification['expires'] + "</td><td>" + notification['message'] + "</td><td><input type='button' name='acknowledge" + notification['id'] + "' value='ACKNOWLEDGE' onclick='javascript:acknowledge(" + notification['id'] + "); return false;'></td></tr>";
+				});
+				//html += "</table>";
+
+				//$('#result').empty();
+				//$('#result').html(html);
+			})
+			.fail( function(jqXHR, textStatus) {
+				$('#error').empty();
+				$('#error').html(textStatus);
+				$('#error').css('visibility', 'visible');
+				deactivatePoller();
+			})
+		}
+
+		function acknowledge(notificationId) {
+			$.ajax({
+				type: "GET",
+				url: "http://localhost:5000/v0.1/acknowledgeNotification/" + notificationId
+			});
+		}
+		$('document').ready(function() {
+			poller = 0;
+			requestNotificationsGrant();
+			notifications_list = {};
+			$('#show_button').click(function () { postNotification($('#notification_text').val()); });
+		});
+		</script>
+		<style>
+		body {
+			font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;;
+		}
+
+		table {
+			margin-top: 20px;
+			width: 50%;
+			border-collapse: collapse;
+		}
+
+		th, td {
+			font-size:1em;
+			border:1px solid black;
+			padding:3px 7px 2px 7px;
+		}
+
+		tr:nth-child(even) {
+			background-color: #EAF2D3;
+		}
+
+		#id	{ width: 30px; }
+		#text	{ width: 400px; }
+		#status	{ width: 300px; }
+		#notification_text { width: 400px; }
+		</style>
+		</head>
+	<body>
+		<form action="javascript:void(0);">
+		<!-- <label for="notification_text">Notification text:</label> <input type="text" id="notification_text"> <input type="submit" name="show_button" id="show_button" value="Show"> -->
+		<label for="togglePollerCheck">Poll notifications:</label> <input type="checkbox" id="togglePollerCheck" value="Poll notifications" onclick="javascript:togglePoller();">
+		</form>
+		<table id="n_status">
+			<tr>
+				<th id="id">Id</th>
+				<th id="text">Text</th>
+				<th id="status">Status</th>
+			</tr>
+		</table>
+		<div id="error"></div>
+	</body>
+</html>

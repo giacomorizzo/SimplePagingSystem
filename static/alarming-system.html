@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<title>Your Alarming System</title>
+		<script src="jquery-2.1.0.min.js"></script>
+		<script>
+                function activatePolling(notificationId) {
+			poller = window.setInterval(function () { pollNotification(notification['id']); }, 3000);
+                        console.log("Polling activated");
+                }
+
+                function deactivatePolling() {
+                        window.clearInterval(poller);
+                        poller = 0;
+                        console.log("Polling deactivated");
+                }
+
+		function createNotification() {
+			$.ajax({
+				type: "POST",
+				url: "http://localhost:5000/v0.1/createNotification",
+				data: $('#alarm_form').serialize()
+			})
+			.done( function(data) {
+				$('#result').html(data);
+				notification = JSON.parse(data);
+				activatePolling(notification['id']);
+			})
+			.fail( function(jqXHR, textStatus) {
+				$('#error').html(textStatus);
+				deactivatePolling();
+			})
+		}
+
+		function pollNotification(notificationId) {
+			console.log("Polling notification Id: " + notificationId);
+
+			$.ajax({
+				type: "GET",
+				url: "http://localhost:5000/v0.1/getNotification/" + notificationId
+			})
+			.done( function(data) {
+				$('#result').empty();
+				$('#result').html(data);
+				notification = JSON.parse(data);
+				if (notification['status'] == "ACKNOWLEDGED") {
+					deactivatePolling();
+				}
+			})
+			.fail( function(jqXHR, textStatus) {
+				$('#error').css('visibility', 'visible');
+				$('#error').empty();
+				$('#error').html(textStatus);
+				deactivatePolling();
+			})
+		}
+		</script>
+		<style>
+		#result {
+			border: 1px solid green;
+		}
+		#error {
+			border: 1px solid red;
+			visibility: hidden;
+		}
+		</style>
+	</head>
+	<body>
+		<form id="alarm_form" method="post" action="javascript:createNotification()">
+			<label for="message">Message</label> <input type="text" name="message" /><br>
+			<input type="submit" name="submit" value="Send">
+		</form>
+		<div id="result"></div>
+		<div id="error"></div>
+	</body>
+</html>

@@ -1,9 +1,12 @@
 Authentication
 
-Notifications expiration
-
-Alarming system mock in jQuery
+jQuery Alarming system mock:
 	- Login/Logout
 
-Notification client in jQuery
+jQuery Notification client
 	- Login/Logout
+
+Android Notification app
+	- Login/Logout
+	- Refresh notifications via timer
+	- Settings (login info?)

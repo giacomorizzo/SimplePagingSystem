@@ -14,6 +14,9 @@ class Notification():
 			self.notificationId = notificationId
 			self.created = created
 			self.expires = expires
+
+			if int(expires) <= int(datetime.datetime.now().strftime('%s')):
+				self.status = 'FAILED'
 		else:
 			# New notification being created, persisting
 
@@ -49,28 +52,22 @@ class Notification():
 		self.persistNotification()
 	
 	def persistNotification(self):
+		if self.notificationId:
+			return self._sql_update('UPDATE notifications SET status = "{0}" WHERE id = "{1}"'.format(self.status, self.notificationId))
+		else:
+			return self._sql_update('INSERT INTO notifications (status, message, requester, receiver, created, expires) VALUES ("{0}", "{1}", "{2}", "{3}", "{4}", "{5}")'.format(self.status, self.message, self.requester, self.receiver, self.created, self.expires))
+	
+	def _sql_update(self, sql):
 		# NOTE: with the incrase of the system's load, connecting each time to the dbfile and closing it might not scale.
 		# A Singleton approach would be more scalable.
 
 		with sqlite3.connect('sqlite3storage.db') as db:
 			dbHandler = db.cursor()
+			dbHandler.execute(sql)
+			return dbHandler.lastrowid
 
-			if self.notificationId:
-				dbHandler.execute('UPDATE notifications SET status = ? WHERE id = ?', (self.status, self.notificationId))
-				return self.notificationId
-			else:
-				dbHandler.execute('INSERT INTO notifications (status, message, requester, receiver, created, expires) VALUES (?, ?, ?, ?, ?, ?)', (self.status, self.message, self.requester, self.receiver, self.created, self.expires))
-				return dbHandler.lastrowid
-	
 	def to_dict(self):
-		return {
-			'id': self.notificationId,
-			'status': self._status,
-			'message': self.message,
-			'requester': self.requester,
-			'receiver': self.receiver,
-			'created': self.created,
-			'expires': self.expires
-		}
-
-	#TODO: def readFromStorage():
+		result = self.__dict__
+		result['status'] = result.pop('_status')
+		result['id'] = result.pop('notificationId')
+		return result

@@ -42,7 +42,7 @@
 				$('#result').empty();
 				$('#result').html(data);
 				notification = JSON.parse(data);
-				if (notification['status'] == "ACKNOWLEDGED") {
+				if ((notification['status'] == "ACKNOWLEDGED") || (notification['status'] == "FAILED")) {
 					deactivatePolling();
 				}
 			})

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from nose.tools import *
 from SPS import Notification
 from SPS import exceptions
-#import SPS
+import datetime
 
 values = {
 	'message': 'message content',
@@ -11,6 +11,8 @@ values = {
 	'requester': 'requester_username',
 	'last_row_id': 999,
 	'notification_id': 10,
+	'expires': (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime('%s'),
+	'created': datetime.datetime.now().strftime('%s'),
 	'invalid_state': 'INVALID_STATE_1235'
 }
 
@@ -72,7 +74,8 @@ def test_persistNotification_new(mocked_method):
 	mocked_method.return_value = values['last_row_id']
 
 	# Forcing a notificationId in the constructor to avoid calling persistNotification within the constructor
-	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], notificationId=1)
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], notificationId=1)
+	assert mocked_method.call_count == 0
 
 	# Now setting the notificationId to None to trigger the creation manually
 	instance.notificationId = None
@@ -87,12 +90,25 @@ def test_persistNotification_update(mocked_method):
 	mocked_method.return_value = values['notification_id']
 
 	# Forcing a notificationId in the constructor to avoid calling persistNotification within the constructor
-	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], notificationId=1)
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], notificationId=1)
+	assert mocked_method.call_count == 0
 
 	# Now setting the notificationId to None to trigger the creation manually
 	instance.notificationId = values['notification_id']
 	
 	return_id = instance.persistNotification()
 	assert return_id == values['notification_id']
+	assert mocked_method.call_count == 1
+	assert mocked_method.call_args[0][0].startswith('UPDATE ')
+
+@patch.object(Notification.Notification, '_sql_update')
+def test_persistNotification_expired(mocked_method):
+	mocked_method.return_value = values['notification_id']
+
+	# Testing the edge case: the notification expires in this very second
+	expires = datetime.datetime.now().strftime('%s')
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=expires, created=values['created'], notificationId=1)
+
+	assert instance.status == "FAILED"
 	assert mocked_method.call_count == 1
 	assert mocked_method.call_args[0][0].startswith('UPDATE ')

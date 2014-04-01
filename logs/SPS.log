@@ -1,0 +1,350 @@
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:18:41] "GET /static/notification-system.html HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:18:41] "GET /static/jquery-2.1.0.min.js HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 0 results
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:18:54] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 0 results
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:19:04] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:26:50] "GET /static/alarming-system.html HTTP/1.1" 200 -
+INFO:root:New createNotification request
+DEBUG:root:Message: message content, Requester: dummyRequester, Receiver: dummyReceiver
+DEBUG:root:New notification. Persisting
+INFO:root:New SQL request
+DEBUG:root:SQL: INSERT INTO notifications (status, message, requester, receiver, created, expires) VALUES ("ARRIVED", "message content", "dummyRequester", "dummyReceiver", "1396387616", "1396388516")
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:26:56] "POST /v0.1/createNotification HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:root:NotificationId: 1, Status: ARRIVED, Notification delivery exired
+DEBUG:root:NotificationId: 1, Status set to FAILED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "FAILED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:26:59] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:root:New createNotification request
+DEBUG:root:Message: message content, Requester: dummyRequester, Receiver: dummyReceiver
+DEBUG:root:New notification. Persisting
+INFO:root:New SQL request
+DEBUG:root:SQL: INSERT INTO notifications (status, message, requester, receiver, created, expires) VALUES ("ARRIVED", "message content", "dummyRequester", "dummyReceiver", "1396387898", "1396388798")
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:38] "POST /v0.1/createNotification HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:41] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:44] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:47] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:50] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:53] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:56] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:31:59] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:02] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:05] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:NotificationId: 1, Status set to DELIVERED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "DELIVERED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:07] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:08] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:11] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:14] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:17] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:NotificationId: 1, Status set to DELIVERED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "DELIVERED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:18] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:20] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:23] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:26] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:NotificationId: 1, Status set to DELIVERED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "DELIVERED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:27] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:29] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:32] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:35] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:NotificationId: 1, Status set to DELIVERED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "DELIVERED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:37] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:38] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:41] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:44] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:46] "GET /static/notification-system.html HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:46] "GET /static/jquery-2.1.0.min.js HTTP/1.1" 304 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:47] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:50] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:53] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:56] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:32:59] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:02] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:05] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:08] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:11] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:14] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:17] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:20] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:23] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:24] "GET /static/notification-system.html HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:24] "GET /static/jquery-2.1.0.min.js HTTP/1.1" 304 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:26] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:29] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:32] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:35] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:NotificationId: 1, Status set to DELIVERED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "DELIVERED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:37] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:38] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Requesting acknowledgement of notificationId: 1
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+DEBUG:root:Acknowledging notification 1
+DEBUG:root:NotificationId: 1, Status set to ACKNOWLEDGED
+INFO:root:New SQL request
+DEBUG:root:SQL: UPDATE notifications SET status = "ACKNOWLEDGED" WHERE id = "1"
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:39] "GET /v0.1/acknowledgeNotification/1 HTTP/1.1" 200 -
+DEBUG:root:Querying for notificationId: 1
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE id = 1
+DEBUG:root:Query returned 1 results
+DEBUG:root:NotificationId = 1, not persisting
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:41] "GET /v0.1/getNotification/1 HTTP/1.1" 200 -
+INFO:root:New SQL request
+DEBUG:root:SQL: SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")
+DEBUG:root:Query returned 0 results
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:33:46] "GET /v0.1/getAvailableNotifications HTTP/1.1" 200 -
+INFO:werkzeug: * Running on http://0.0.0.0:5000/
+INFO:werkzeug: * Restarting with reloader
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:36:26] "GET /static/notification-system.html HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:36:27] "GET /static/jquery-2.1.0.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:36:29] "GET /static/notification-system.html HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [01/Apr/2014 23:36:30] "GET /static/jquery-2.1.0.min.js HTTP/1.1" 304 -

@@ -1,3 +1,7 @@
+import logging
+
+logging.basicConfig(filename='logs/SPS.log',level=logging.DEBUG)
+
 class SPS_Fatal(Exception):
 	"""
 	The application has encountered an unrecoverable error and gets terminated.
@@ -5,8 +9,9 @@ class SPS_Fatal(Exception):
 	def __init__(self, errorId, message):
 		self.errorId = errorId
 		self.message = message
+		logging.error(message)
 
-	# TODO update_metrics()
+	# update_metrics()
 
 class SPS_Error(Exception):
 	"""
@@ -15,8 +20,9 @@ class SPS_Error(Exception):
 	def __init__(self, errorId, message):
 		self.errorId = errorId
 		self.message = message
+		logging.error(message)
 
-	# TODO update_metrics()
+	# update_metrics()
 
 class SPS_UserError(Exception):
 	"""
@@ -25,5 +31,6 @@ class SPS_UserError(Exception):
 	def __init__(self, errorId, message):
 		self.errorId = errorId
 		self.message = message
+		logging.warning(message)
 
-	# TODO update_metrics()
+	# update_metrics()

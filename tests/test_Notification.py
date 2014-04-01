@@ -11,8 +11,8 @@ values = {
 	'requester': 'requester_username',
 	'last_row_id': 999,
 	'notification_id': 10,
-	'expires': (datetime.datetime.now() + datetime.timedelta(minutes=1)).strftime('%s'),
-	'created': datetime.datetime.now().strftime('%s'),
+	'expires': (datetime.datetime.utcnow() + datetime.timedelta(minutes=1)).strftime('%s'),
+	'created': datetime.datetime.utcnow().strftime('%s'),
 	'invalid_state': 'INVALID_STATE_1235'
 }
 
@@ -74,7 +74,7 @@ def test_persistNotification_new(mocked_method):
 	mocked_method.return_value = values['last_row_id']
 
 	# Forcing a notificationId in the constructor to avoid calling persistNotification within the constructor
-	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], notificationId=1)
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], status='DELIVERED', notificationId=1)
 	assert mocked_method.call_count == 0
 
 	# Now setting the notificationId to None to trigger the creation manually
@@ -90,7 +90,7 @@ def test_persistNotification_update(mocked_method):
 	mocked_method.return_value = values['notification_id']
 
 	# Forcing a notificationId in the constructor to avoid calling persistNotification within the constructor
-	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], notificationId=1)
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=values['expires'], created=values['created'], status='DELIVERED', notificationId=1)
 	assert mocked_method.call_count == 0
 
 	# Now setting the notificationId to None to trigger the creation manually
@@ -106,8 +106,20 @@ def test_persistNotification_expired(mocked_method):
 	mocked_method.return_value = values['notification_id']
 
 	# Testing the edge case: the notification expires in this very second
-	expires = datetime.datetime.now().strftime('%s')
-	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=expires, created=values['created'], notificationId=1)
+	expires = datetime.datetime.utcnow().strftime('%s')
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=expires, created=values['created'], status='DELIVERED', notificationId=1)
+
+	assert instance.status == "FAILED"
+	assert mocked_method.call_count == 1
+	assert mocked_method.call_args[0][0].startswith('UPDATE ')
+
+@patch.object(Notification.Notification, '_sql_update')
+def test_persistNotification_expired_5m(mocked_method):
+	mocked_method.return_value = values['notification_id']
+
+	# Testing the edge case: the notification has just passed the 5 allowed minutes for delivery
+	expires = datetime.datetime.utcnow().strftime('%s')
+	instance = Notification.Notification(requester=values['requester'], receiver=values['receiver'], message=values['message'], expires=expires, created=values['created'], status='ARRIVED', notificationId=1)
 
 	assert instance.status == "FAILED"
 	assert mocked_method.call_count == 1

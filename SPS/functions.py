@@ -2,17 +2,21 @@ from SPS.exceptions import *
 from SPS.Notification import Notification
 import sqlite3
 
-def getNotificationById(notificationId):
+def _sql_get(sql):
 	with sqlite3.connect('sqlite3storage.db') as db:
 		db.row_factory = sqlite3.Row
 		dbHandler = db.cursor()
 
 		# notificationId is an int, as it's been converted at API level
-		dbHandler.execute('SELECT * FROM notifications WHERE id = ?', (int(notificationId),))
-		notification = dbHandler.fetchone()
+		dbHandler.execute(sql)
+		return dbHandler.fetchall()
 
-	if notification:
-		return dbOutputToNotification(notification)
+def getNotificationById(notificationId):
+	# notificationId is an int, as it's been converted at API level
+	notification = _sql_get('SELECT * FROM notifications WHERE id = {0}'.format(notificationId))
+
+	if len(notification):
+		return dbOutputToNotification(notification[0])
 	else:
 		raise SPS_UserError(1, "The specified notification '{0}' doesn't exists".format(notificationId))
 
@@ -23,18 +27,11 @@ def dbOutputToNotification(dbdict):
 def getAvailableNotifications():
 	#TODO is the user allowed to perform this action?
 
-	with sqlite3.connect('sqlite3storage.db') as db:
-		db.row_factory = sqlite3.Row
-		dbHandler = db.cursor()
-
-		dbHandler.execute('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")')
-		notifications = dbHandler.fetchall()
-
-		dict_notifications = []
-		for notification in notifications:
-			notification = dbOutputToNotification(notification)
-			notification.status = "DELIVERED"
-			dict_notifications.append(notification.to_dict())
+	dict_notifications = []
+	for notification in _sql_get('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")'):
+		notification = dbOutputToNotification(notification)
+		notification.status = "DELIVERED"
+		dict_notifications.append(notification.to_dict())
 
 	return dict_notifications
 
@@ -64,5 +61,4 @@ def acknowledgeNotification(notificationId):
 	notification = getNotificationById(notificationId)
 	notification.acknowledge()
 
-	#TODO: return what?
 	return notification.to_dict()

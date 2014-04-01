@@ -64,6 +64,7 @@ class Notification():
 		with sqlite3.connect('sqlite3storage.db') as db:
 			dbHandler = db.cursor()
 			dbHandler.execute(sql)
+
 			return dbHandler.lastrowid
 
 	def to_dict(self):

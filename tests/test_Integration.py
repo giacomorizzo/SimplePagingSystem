@@ -3,45 +3,60 @@ import requests
 import json
 
 notification = None
+auth = ('username', 'password')
+
+def test_noAuth():
+	r = requests.get('http://localhost:5000/v0.1/getAvailableNotifications')
+	print(repr(r.text))
+
+	assert r.status_code == 401
 
 def test_getAvailableNotifications_empty():
-#	r = requests.get('https://api.github.com/user', auth=('user', 'pass'))
+	global auth
 
-	# Test nr.1: at start, there should be no available notifications returned
-	r = requests.get('http://localhost:5000/v0.1/getAvailableNotifications')
+	r = requests.get('http://localhost:5000/v0.1/getAvailableNotifications', auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
 	assert r.json() ==  []
 
 def test_getUnexistent_Notification():
-	# Test nr.2: if we try to get an unexistent notification, we get an error back
-	r = requests.get('http://localhost:5000/v0.1/getNotification/1')
+	global auth
+
+	r = requests.get('http://localhost:5000/v0.1/getNotification/1', auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
-	assert r.text == "The specified notification '1' doesn't exists"
+	assert r.text == "The specified notification '1' doesn't exists or is not destinated to you"
 
 def test_createNotification():
-	global notification
+	global notification, auth
 
-	# Test nr.3: attempt to put a notification
-	r = requests.post('http://localhost:5000/v0.1/createNotification', data={'message': 'test message'})
+	r = requests.post('http://localhost:5000/v0.1/createNotification', data={'message': 'test message', 'receiver': 'username'}, auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
-
 	notification = r.json()
 	assert notification['message'] == 'test message'
 	assert notification['status'] == 'ARRIVED'
 
 def test_getNotification():
-	global notification
+	global notification, auth
 
-	r = requests.get('http://localhost:5000/v0.1/getNotification/{0}'.format(notification['id']))
+	r = requests.get('http://localhost:5000/v0.1/getNotification/{0}'.format(notification['id']), auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
 	result = r.json()
 	assert result['id'] == notification['id']
 	assert notification['status'] == 'ARRIVED'
 
 def test_getAvailableNotifications():
-	global notification
+	global notification, auth
 
-	r = requests.get('http://localhost:5000/v0.1/getAvailableNotifications')
+	r = requests.get('http://localhost:5000/v0.1/getAvailableNotifications', auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
 	notifications = r.json()
 	assert len(notifications) == 1
@@ -49,9 +64,11 @@ def test_getAvailableNotifications():
 	assert notifications[0]['status'] == 'DELIVERED'
 
 def test_acknowledgeNotification():
-	global notification
+	global notification, auth
 
-	r = requests.get('http://localhost:5000/v0.1/acknowledgeNotification/{0}'.format(notification['id']))
+	r = requests.get('http://localhost:5000/v0.1/acknowledgeNotification/{0}'.format(notification['id']), auth=auth)
+	print(repr(r.text))
+
 	assert r.status_code == 200
 	result = r.json()
 	assert result['id'] == notification['id']

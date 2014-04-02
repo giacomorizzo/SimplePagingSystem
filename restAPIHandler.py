@@ -10,15 +10,17 @@ app.debug = True
 #TODO support multiple formats?
 
 @app.route('/v0.1/createNotification', methods=['POST'])
+@functions.requires_auth
 def api_createNotification():
 	try:
-		result = functions.createNotification(request.form.get('message', None), 'dummyRequester', 'dummyReceiver')
+		result = functions.createNotification(request.form.get('message', None), request.form.get('receiver', None))
 	except exceptions.SPS_UserError as error:
 		return error.message
 
 	return json.dumps(result)
 
 @app.route('/v0.1/getNotification/<int:notificationId>')
+@functions.requires_auth
 def api_getNotification(notificationId):
 	try:
 		result = functions.getNotification(notificationId) 
@@ -28,6 +30,7 @@ def api_getNotification(notificationId):
 	return json.dumps(result)
 
 @app.route('/v0.1/getAvailableNotifications')
+@functions.requires_auth
 def api_getAvailableNotifications():
 	try:
 		result = functions.getAvailableNotifications()
@@ -36,16 +39,8 @@ def api_getAvailableNotifications():
 	
 	return json.dumps(result)
 
-@app.route('/v0.1/login')
-def api_login():
-	try:
-		result = functions.login()
-	except exceptions.SPS_UserError as error:
-		return error.message
-	
-	return json.dumps(result)
-
 @app.route('/v0.1/acknowledgeNotification/<int:notificationId>')
+@functions.requires_auth
 def api_acknowledgeNotification(notificationId):
 	try:
 		result = functions.acknowledgeNotification(notificationId) 

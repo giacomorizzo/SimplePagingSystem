@@ -3,7 +3,7 @@ import datetime
 import sqlite3
 import logging
 
-logging.basicConfig(filename='logs/SPS.log',level=logging.DEBUG)
+logging.basicConfig(filename='logs/SPS.log',level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 class Notification():
 	def __init__(self, requester, receiver, message, status='ARRIVED', created=None, expires=None, notificationId=None):

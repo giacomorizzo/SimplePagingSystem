@@ -98,7 +98,7 @@
 		function pollNotifications() {
 			console.log("Polling notifications");
 
-			$.ajax({ type: "GET", url: "http://localhost:5000/v0.1/getAvailableNotifications" })
+			$.ajax({ type: "GET", url: "http://localhost:5000/v0.1/getAvailableNotifications", username: "username", password: "password" })
 			.done( function(data) {
 				notifications = JSON.parse(data)
 				//html = "<table><tr><th>id</th><th>status</th><th>requester</th><th>receiver</th><th>created</th><th>expires</th><th>message</th><th>acknowledge</th></tr>"
@@ -127,8 +127,16 @@
 		function acknowledge(notificationId) {
 			$.ajax({
 				type: "GET",
-				url: "http://localhost:5000/v0.1/acknowledgeNotification/" + notificationId
-			});
+				url: "http://localhost:5000/v0.1/acknowledgeNotification/" + notificationId,
+				username: "username",
+				password: "password"
+			})
+			.fail( function(jqXHR, textStatus) {
+				$('#error').empty();
+				$('#error').html(textStatus);
+				$('#error').css('visibility', 'visible');
+				deactivatePoller();
+			})
 		}
 		$('document').ready(function() {
 			poller = 0;

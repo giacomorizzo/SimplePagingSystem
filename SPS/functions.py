@@ -1,9 +1,12 @@
 from SPS.exceptions import *
 from SPS.Notification import Notification
+from flask import request, Response
+from functools import wraps
 import sqlite3
 import logging
+import hashlib
 
-logging.basicConfig(filename='logs/SPS.log',level=logging.DEBUG)
+logging.basicConfig(filename='logs/SPS.log',level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 def _sql_get(sql):
 	logging.info('New SQL request')
@@ -23,55 +26,67 @@ def _sql_get(sql):
 def getNotificationById(notificationId):
 	# notificationId is an int, as it's been converted at API level
 	logging.debug('Querying for notificationId: {0}'.format(notificationId))
-	notification = _sql_get('SELECT * FROM notifications WHERE id = {0}'.format(notificationId))
+
+	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(request.authorization.username))[0]['uid']
+	notification = _sql_get('SELECT * FROM notifications WHERE id = {0} AND (receiver = {1} OR requester = {1})'.format(notificationId, requester_uid))
 
 	if len(notification):
 		logging.debug('Query returned {0} results'.format(len(notification)))
-		return dbOutputToNotification(notification[0])
+		notification = dbOutputToNotification(notification[0])
+		return notification
 	else:
-		raise SPS_UserError(1, "The specified notification '{0}' doesn't exists".format(notificationId))
+		raise SPS_UserError(1, "The specified notification '{0}' doesn't exists or is not destinated to you".format(notificationId))
 
+
+def mapUidToUsername(uid):
+	return _sql_get('SELECT username FROM users WHERE uid = "{0}"'.format(uid))[0]['username']
 
 def dbOutputToNotification(dbdict):
 	return Notification(notificationId = dbdict['id'], status = dbdict['status'], message = dbdict['message'], requester = dbdict['requester'], receiver = dbdict['receiver'], created = dbdict['created'], expires = dbdict['expires'] )
 
 def getAvailableNotifications():
-	#TODO is the user allowed to perform this action?
+	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(request.authorization.username))[0]['uid']
 
 	dict_notifications = []
-	notifications = _sql_get('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED")')
+	notifications = _sql_get('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED") AND receiver = {0}'.format(requester_uid))
 	logging.debug('Query returned {0} results'.format(len(notifications)))
 
 	for notification in notifications:
 		notification = dbOutputToNotification(notification)
 		notification.status = "DELIVERED"
-		dict_notifications.append(notification.to_dict())
+		dict_notifications.append(presentNotification(notification))
 
 	return dict_notifications
 
-def createNotification(message, requester, receiver):
-	#TODO is the user allowed to perform this action?
+def createNotification(message, receiver):
 	"""
 	Stores the notification in the database
 	Returns the new notificationId
 	"""
 
-	#TODO Translate requester username to uid
-	#TODO Translate receiver username to uid
+	requester = request.authorization.username
 
 	logging.info('New createNotification request')
 	logging.debug('Message: {0}, Requester: {1}, Receiver: {2}'.format(message, requester, receiver))
 
 	if not message:
 		raise SPS_UserError(0, "No notification message specified")
+	
+	if not receiver:
+		raise SPS_UserError(0, "No receiver specified")
 
-	return Notification(requester=requester, receiver=receiver, message=message).to_dict()
+	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(requester))[0]['uid']
+	receiver_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(receiver))[0]['uid']
 
-def login():
-	raise NotImplemented()
+	if not receiver_uid:
+		raise SPS_UserError(0, "Invalid receiver")
+
+	notification = Notification(requester=requester_uid, receiver=receiver_uid, message=message)
+	return presentNotification(notification)
 
 def getNotification(notificationId):
-	return getNotificationById(notificationId).to_dict()
+	notification = getNotificationById(notificationId)
+	return presentNotification(notification)
 
 def acknowledgeNotification(notificationId):
 	logging.debug('Requesting acknowledgement of notificationId: {0}'.format(notificationId))
@@ -80,4 +95,30 @@ def acknowledgeNotification(notificationId):
 	notification = getNotificationById(notificationId)
 	notification.acknowledge()
 
+	return presentNotification(notification)
+
+def check_auth(username, password):
+	"""This function is called to check if a username password combination is valid."""
+
+	results = _sql_get('SELECT uid FROM users WHERE username = "{0}" AND password = "{1}"'.format(username, hashlib.md5(password.encode('utf-8')).hexdigest()))
+
+	if len(results):
+		return True
+
+def authenticate():
+	"""Sends a 401 response that enables basic auth"""
+	return Response('Could not verify your access level for that URL.\n' 'You have to login with proper credentials', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def presentNotification(notification):
+	notification.receiver = mapUidToUsername(notification.receiver)
+	notification.requester = mapUidToUsername(notification.requester)
 	return notification.to_dict()
+
+def requires_auth(f):
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		auth = request.authorization
+		if not auth or not check_auth(auth.username, auth.password):
+			return authenticate()
+		return f(*args, **kwargs)
+	return decorated

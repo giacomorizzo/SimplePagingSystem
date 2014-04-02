@@ -18,6 +18,8 @@
 			$.ajax({
 				type: "POST",
 				url: "http://localhost:5000/v0.1/createNotification",
+				username: "alarming",
+				password: "system",
 				data: $('#alarm_form').serialize()
 			})
 			.done( function(data) {
@@ -36,6 +38,8 @@
 
 			$.ajax({
 				type: "GET",
+				username: "alarming",
+				password: "system",
 				url: "http://localhost:5000/v0.1/getNotification/" + notificationId
 			})
 			.done( function(data) {
@@ -67,6 +71,7 @@
 	<body>
 		<form id="alarm_form" method="post" action="javascript:createNotification()">
 			<label for="message">Message</label> <input type="text" name="message" /><br>
+			<label for="receiver">Receiver</label> <input type="text" name="receiver" value="username" /><br>
 			<input type="submit" name="submit" value="Send">
 		</form>
 		<div id="result"></div>

@@ -23,12 +23,12 @@ class Notification():
 			expire_time = datetime.datetime.fromtimestamp(int(expires))
 			if self.status == 'DELIVERED' and expire_time <= datetime.datetime.utcnow():
 				# Acknowledgement didn't happen within 15 minutes
-				logging.info('NotificationId: {0}, Status: {1}, Notification exired'.format(notificationId, self.status))
+				logging.info('NotificationId: {0}, Status: {1}, Notification expired'.format(notificationId, self.status))
 				self.status = 'FAILED'
 
 			elif self.status == 'ARRIVED' and (expire_time - datetime.timedelta(minutes=10)) <= datetime.datetime.utcnow():
 				# Delivery didn't happen within 5 minutes
-				logging.info('NotificationId: {0}, Status: {1}, Notification delivery exired'.format(notificationId, self.status))
+				logging.info('NotificationId: {0}, Status: {1}, Notification delivery expired'.format(notificationId, self.status))
 				self.status = 'FAILED'
 		else:
 			# New notification being created, persisting

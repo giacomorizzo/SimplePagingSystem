@@ -48,7 +48,7 @@ def getAvailableNotifications():
 	requester_uid = request.authorization.uid
 
 	dict_notifications = []
-	notifications = _sql_get('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED") AND receiver = {0}'.format(requester_uid))
+	notifications = _sql_get("SELECT * FROM notifications WHERE status not in ('ACKNOWLEDGED', 'FAILED') AND receiver = {0}".format(requester_uid))
 	logging.debug('Query returned {0} results'.format(len(notifications)))
 
 	for notification in notifications:
@@ -76,11 +76,12 @@ def createNotification(message, receiver):
 	if not receiver:
 		raise SPS_UserError(0, "No receiver specified")
 
-	receiver_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(receiver))[0]['uid']
+	receiver_uid = _sql_get("SELECT uid FROM users WHERE username = '{0}'".format(receiver))[0]['uid']
 
 	if not receiver_uid:
 		raise SPS_UserError(0, "Invalid receiver")
 
+	logging.debug('Notification created. Message: {0}, Requester: {1} (uid {2}), Receiver: {3} (uid {4})'.format(message, requester, requester_uid, receiver, receiver_uid))
 	notification = Notification(requester=requester_uid, receiver=receiver_uid, message=message)
 	return presentNotification(notification)
 
@@ -100,10 +101,12 @@ def acknowledgeNotification(notificationId):
 def check_auth(username, password):
 	"""This function is called to check if a username password combination is valid."""
 
-	uids = _sql_get('SELECT uid FROM users WHERE username = "{0}" AND password = "{1} LIMIT 1"'.format(username, hashlib.md5(password.encode('utf-8')).hexdigest()))
+	uids = _sql_get("SELECT uid FROM users WHERE username = '{0}' AND password = '{1}' LIMIT 1".format(username, hashlib.md5(password.encode('utf-8')).hexdigest()))
 
 	if len(uids):
-		request.authorization.uid = uids[0]
+		uid = uids[0]['uid']
+		logging.debug("Successful login for user {0} (uid {1})".format(username, uid))
+		request.authorization.uid = uid
 		return True
 	else:
 		return False

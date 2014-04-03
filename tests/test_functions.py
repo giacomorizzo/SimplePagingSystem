@@ -60,7 +60,9 @@ def test_createNotification(mock_Notification):
 	mock_toDict = MagicMock(return_value=values['notificationDict'])
 	mock_Notification.return_value = MagicMock(to_dict=mock_toDict)
 
-	retval = functions.createNotification(values['message'], values['requester'], values['receiver'])
+	mock_authorization = patch('request.authorization')	
+
+	retval = functions.createNotification(values['message'], values['receiver'])
 
 	assert retval == values['notificationDict']
 	assert mock_Notification.call_count == 1

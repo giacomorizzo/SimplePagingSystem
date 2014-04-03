@@ -6,7 +6,7 @@
 		<script src="jquery-2.1.0.min.js"></script>
 		<script>
 		function activatePolling() {
-			poller = window.setInterval(function () { pollNotifications(); }, 10000);
+			poller = window.setInterval(function () { pollNotifications(); }, 3000);
 			$('#togglePollerButton').prop('value', 'Stop polling');
 			console.log("Polling activated");
 		}
@@ -41,7 +41,7 @@
 			}
 		} 
 
-		function postNotification(text, id, requester) {
+		function postNotification(text, id, requester, receiver) {
 			if (!requestNotificationsGrant()) {
 				console.log("Can't push notifications. Aborting");
 				return false;
@@ -51,10 +51,10 @@
 			var notification = new Notification(text + " (from " + requester + ")", { body: "Click to acknowledge the notification", tag: tag });
 			notifications_list[notification.tag] = notification;
 
-			$('#n_status').append("<tr><td>" + tag + "</td><td>" + text + "</td><td id='status_" + tag + "'>SENT</td><td><button id='ack_" + tag + "'>ACK</button></td></tr>");
+			$('#n_status').append("<tr><td>" + text + "</td><td>" + requester + "</td><td>" + receiver + "</td><td id='status_" + tag + "'>SENT</td><td><button id='ack_" + tag + "'>ACK</button></td></tr>");
 
 			notification.onclick = function () { acknowledge(notification.tag); };
-			$('#ack_' + tag).onclick = function () { acknowledge(notification.tag); };
+			$('#ack_' + tag).click(function () { acknowledge(notification.tag); });
 
 			notification.onclose = function () {
 				if (!notifications_list[notification.tag].ack) {
@@ -97,13 +97,15 @@
 			$.ajax({ type: "GET", url: "/v0.1/getAvailableNotifications", username: "username", password: "password" })
 			.done( function(data) {
 				notifications = JSON.parse(data)
-				//html = "<table><tr><th>id</th><th>status</th><th>requester</th><th>receiver</th><th>created</th><th>expires</th><th>message</th><th>acknowledge</th></tr>"
+				$("#last_poll").html('Successful poll at ' + Date());
+				$("#last_poll").removeClass('error');
+
 				$.each(notifications, function(index, notification) {
 					if (notification['id'] in notifications_list) {
 						console.log("Notification " + notification['id'] + " already posted.");
 					}
 					else {
-						postNotification(notification['message'], notification['id'], notification['requester']);
+						postNotification(notification['message'], notification['id'], notification['requester'], notification['receiver']);
 					}
 				//	html += "<tr><td>" + notification['id'] + "</td><td>" + notification['status'] + "</td><td>" + notification['requester'] + "</td><td>" + notification['receiver'] + "</td><td>" + notification['created'] + "</td><td>" + notification['expires'] + "</td><td>" + notification['message'] + "</td><td><input type='button' name='acknowledge" + notification['id'] + "' value='ACKNOWLEDGE' onclick='javascript:acknowledge(" + notification['id'] + "); return false;'></td></tr>";
 				});
@@ -113,14 +115,18 @@
 				//$('#result').html(html);
 			})
 			.fail( function(jqXHR, textStatus) {
-				$('#error').empty();
-				$('#error').html(textStatus);
-				$('#error').css('visibility', 'visible');
-				deactivatePoller();
+				$("#last_poll").html('Poll failure at ' + Date() + ': ' + textStatus);
+				$("#last_poll").addClass('error');
+				//$('#error').empty();
+				//$('#error').html(textStatus);
+				//$('#error').css('visibility', 'visible');
+				deactivatePolling();
 			})
 		}
 
 		function acknowledge(notificationId) {
+			notifications_list[notificationId].ack = true;
+
 			$.ajax({
 				type: "GET",
 				url: "/v0.1/acknowledgeNotification/" + notificationId,
@@ -130,7 +136,6 @@
 			.done( function(data) {
 				console.log(data);
 				notification = JSON.parse(data);
-				notifications_list[notification['id']].ack = true;
 				$('#status_' + notification['id']).html(notification['status']);
 			})
 			.fail( function(jqXHR, textStatus) {
@@ -145,7 +150,6 @@
 			requestNotificationsGrant();
 			notifications_list = {};
 			$('#togglePollerCheck').prop('checked', false);
-			$('#show_button').click(function () { postNotification($('#notification_text').val()); });
 		});
 		</script>
 		<style>
@@ -169,27 +173,32 @@
 			background-color: #EAF2D3;
 		}
 
-		#id	{ width: 30px; }
-		#text	{ width: 400px; }
-		#status	{ width: 300px; }
-		#acknowledge { width: 300px; }
-		#notification_text { width: 400px; }
+		#text		{ width: 400px; }
+		#requesters	{ width: 300px; }
+		#receivers	{ width: 300px; }
+		#status		{ width: 300px; }
+		#acks		{ width: 100px; }
+		.error	{
+			font-weight: bold;
+			color: red;
+		}
 		</style>
 		</head>
 	<body>
 		<h1>Simple Paging System: Desktop Notification Client</h1>
 		<form action="javascript:void(0);">
-		<!-- <label for="notification_text">Notification text:</label> <input type="text" id="notification_text"> <input type="submit" name="show_button" id="show_button" value="Show"> -->
-		<label for="togglePollerCheck">Poll notifications:</label> <input type="checkbox" id="togglePollerCheck" value="Poll notifications" onclick="javascript:togglePoller();">
+			<label for="togglePollerCheck">Poll notifications:</label> <input type="checkbox" id="togglePollerCheck" value="Poll notifications" onclick="javascript:togglePoller();">
 		</form>
 		<table id="n_status">
 			<tr>
-				<th id="id">Id</th>
-				<th id="text">Text</th>
+				<th id="text">Message</th>
+				<th id="requesters">Requester</th>
+				<th id="receivers">Receiver</th>
 				<th id="status">Status</th>
-				<th id="acknowledge"></th>
+				<th id="acks"></th>
 			</tr>
 		</table>
+		<div id="last_poll"></div>
 		<div id="error"></div>
 	</body>
 </html>

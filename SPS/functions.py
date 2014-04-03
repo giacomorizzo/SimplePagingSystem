@@ -27,7 +27,7 @@ def getNotificationById(notificationId):
 	# notificationId is an int, as it's been converted at API level
 	logging.debug('Querying for notificationId: {0}'.format(notificationId))
 
-	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(request.authorization.username))[0]['uid']
+	requester_uid = request.authorization.uid
 	notification = _sql_get('SELECT * FROM notifications WHERE id = {0} AND (receiver = {1} OR requester = {1})'.format(notificationId, requester_uid))
 
 	if len(notification):
@@ -45,7 +45,7 @@ def dbOutputToNotification(dbdict):
 	return Notification(notificationId = dbdict['id'], status = dbdict['status'], message = dbdict['message'], requester = dbdict['requester'], receiver = dbdict['receiver'], created = dbdict['created'], expires = dbdict['expires'] )
 
 def getAvailableNotifications():
-	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(request.authorization.username))[0]['uid']
+	requester_uid = request.authorization.uid
 
 	dict_notifications = []
 	notifications = _sql_get('SELECT * FROM notifications WHERE status not in ("ACKNOWLEDGED", "FAILED") AND receiver = {0}'.format(requester_uid))
@@ -65,6 +65,7 @@ def createNotification(message, receiver):
 	"""
 
 	requester = request.authorization.username
+	requester_uid = request.authorization.uid
 
 	logging.info('New createNotification request')
 	logging.debug('Message: {0}, Requester: {1}, Receiver: {2}'.format(message, requester, receiver))
@@ -75,7 +76,6 @@ def createNotification(message, receiver):
 	if not receiver:
 		raise SPS_UserError(0, "No receiver specified")
 
-	requester_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(requester))[0]['uid']
 	receiver_uid = _sql_get('SELECT uid FROM users WHERE username = "{0}"'.format(receiver))[0]['uid']
 
 	if not receiver_uid:
@@ -100,10 +100,13 @@ def acknowledgeNotification(notificationId):
 def check_auth(username, password):
 	"""This function is called to check if a username password combination is valid."""
 
-	results = _sql_get('SELECT uid FROM users WHERE username = "{0}" AND password = "{1}"'.format(username, hashlib.md5(password.encode('utf-8')).hexdigest()))
+	uids = _sql_get('SELECT uid FROM users WHERE username = "{0}" AND password = "{1} LIMIT 1"'.format(username, hashlib.md5(password.encode('utf-8')).hexdigest()))
 
-	if len(results):
+	if len(uids):
+		request.authorization.uid = uids[0]
 		return True
+	else:
+		return False
 
 def authenticate():
 	"""Sends a 401 response that enables basic auth"""

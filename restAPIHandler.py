@@ -1,6 +1,5 @@
-from flask import Flask, request, url_for
+from flask import Flask, request, url_for, json
 import logging
-import json
 from SPS import exceptions
 from SPS import functions
 

@@ -50,20 +50,16 @@
 			tag = id;
 			var notification = new Notification(text + " (from " + requester + ")", { body: "Click to acknowledge the notification", tag: tag });
 			notifications_list[notification.tag] = notification;
-			$('#n_status').append("<tr><td>" + tag + "</td><td>" + text + "</td><td id='status_" + tag + "'>SENT</td></tr>");
 
-			notification.onclick = function () {
-				//if (JSON.parse(acknowledge(notification.tag)) {
-				acknowledge(notification.tag);
-				notifications_list[notification.tag].ack = true;
-				console.log("Notification " + notification.tag + " was acknowledged");
-				$('#status_' + notification.tag).html('ACKNOWLEDGED');
-				//}
-			};
+			$('#n_status').append("<tr><td>" + tag + "</td><td>" + text + "</td><td id='status_" + tag + "'>SENT</td><td><button id='ack_" + tag + "'>ACK</button></td></tr>");
+
+			notification.onclick = function () { acknowledge(notification.tag); };
+			$('#ack_' + tag).onclick = function () { acknowledge(notification.tag); };
+
 			notification.onclose = function () {
 				if (!notifications_list[notification.tag].ack) {
 					console.log("Notification " + notification.tag + " was rejected");
-					$('#status_' + notification.tag).html('REJECTED');
+					$('#status_' + notification.tag).html('TIMED OUT');
 				}
 			};
 			notification.onerror = function () {
@@ -98,7 +94,7 @@
 		function pollNotifications() {
 			console.log("Polling notifications");
 
-			$.ajax({ type: "GET", url: "http://localhost:5000/v0.1/getAvailableNotifications", username: "username", password: "password" })
+			$.ajax({ type: "GET", url: "/v0.1/getAvailableNotifications", username: "username", password: "password" })
 			.done( function(data) {
 				notifications = JSON.parse(data)
 				//html = "<table><tr><th>id</th><th>status</th><th>requester</th><th>receiver</th><th>created</th><th>expires</th><th>message</th><th>acknowledge</th></tr>"
@@ -127,15 +123,21 @@
 		function acknowledge(notificationId) {
 			$.ajax({
 				type: "GET",
-				url: "http://localhost:5000/v0.1/acknowledgeNotification/" + notificationId,
+				url: "/v0.1/acknowledgeNotification/" + notificationId,
 				username: "username",
 				password: "password"
+			})
+			.done( function(data) {
+				console.log(data);
+				notification = JSON.parse(data);
+				notifications_list[notification['id']].ack = true;
+				$('#status_' + notification['id']).html(notification['status']);
 			})
 			.fail( function(jqXHR, textStatus) {
 				$('#error').empty();
 				$('#error').html(textStatus);
 				$('#error').css('visibility', 'visible');
-				deactivatePoller();
+				deactivatePolling();
 			})
 		}
 		$('document').ready(function() {
@@ -153,7 +155,7 @@
 
 		table {
 			margin-top: 20px;
-			width: 50%;
+			width: 60%;
 			border-collapse: collapse;
 		}
 
@@ -170,10 +172,12 @@
 		#id	{ width: 30px; }
 		#text	{ width: 400px; }
 		#status	{ width: 300px; }
+		#acknowledge { width: 300px; }
 		#notification_text { width: 400px; }
 		</style>
 		</head>
 	<body>
+		<h1>Simple Paging System: Desktop Notification Client</h1>
 		<form action="javascript:void(0);">
 		<!-- <label for="notification_text">Notification text:</label> <input type="text" id="notification_text"> <input type="submit" name="show_button" id="show_button" value="Show"> -->
 		<label for="togglePollerCheck">Poll notifications:</label> <input type="checkbox" id="togglePollerCheck" value="Poll notifications" onclick="javascript:togglePoller();">
@@ -183,6 +187,7 @@
 				<th id="id">Id</th>
 				<th id="text">Text</th>
 				<th id="status">Status</th>
+				<th id="acknowledge"></th>
 			</tr>
 		</table>
 		<div id="error"></div>

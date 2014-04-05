@@ -23,12 +23,15 @@ def _sql_get(sql):
 	except sqlite3.Error as e:
 		raise SPS_Fatal(0, "Issues encountered while connecting to the database: '{0}'".format(e.args[0]))
 
+def _requester(field):
+	# This is useful to remove flask mocking from unit tests
+	return getattr(request.authorization, field)
+
 def getNotificationById(notificationId):
 	# notificationId is an int, as it's been converted at API level
 	logging.debug('Querying for notificationId: {0}'.format(notificationId))
 
-	requester_uid = request.authorization.uid
-	notification = _sql_get('SELECT * FROM notifications WHERE id = {0} AND (receiver = {1} OR requester = {1})'.format(notificationId, requester_uid))
+	notification = _sql_get('SELECT * FROM notifications WHERE id = {0} AND (receiver = {1} OR requester = {1})'.format(notificationId, _requester('uid')))
 
 	if len(notification):
 		logging.debug('Query returned {0} results'.format(len(notification)))
@@ -45,10 +48,9 @@ def dbOutputToNotification(dbdict):
 	return Notification(notificationId = dbdict['id'], status = dbdict['status'], message = dbdict['message'], requester = dbdict['requester'], receiver = dbdict['receiver'], created = dbdict['created'], expires = dbdict['expires'] )
 
 def getAvailableNotifications():
-	requester_uid = request.authorization.uid
 
 	dict_notifications = []
-	notifications = _sql_get("SELECT * FROM notifications WHERE status not in ('ACKNOWLEDGED', 'FAILED') AND receiver = {0}".format(requester_uid))
+	notifications = _sql_get("SELECT * FROM notifications WHERE status not in ('ACKNOWLEDGED', 'FAILED') AND receiver = {0}".format(_requester('uid')))
 	logging.debug('Query returned {0} results'.format(len(notifications)))
 
 	for notification in notifications:
@@ -64,8 +66,8 @@ def createNotification(message, receiver):
 	Returns the new notificationId
 	"""
 
-	requester = request.authorization.username
-	requester_uid = request.authorization.uid
+	requester = _requester('username')
+	requester_uid = _requester('uid')
 
 	logging.info('New createNotification request')
 	logging.debug('Message: {0}, Requester: {1}, Receiver: {2}'.format(message, requester, receiver))
